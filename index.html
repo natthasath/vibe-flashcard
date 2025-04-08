@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English-Thai Vocabulary Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="manage.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600&family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', 'Noto Sans Thai', sans-serif;
+        }
+        
+        .flashcard {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            perspective: 1000px;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-face {
+            backface-visibility: hidden;
+        }
+        
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        
+        .word-highlight {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .pronunciation-icon {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pronunciation-icon:hover {
+            transform: scale(1.1);
+            color: #3b82f6;
+        }
+        
+        .category-badge {
+            transition: all 0.3s;
+        }
+        
+        .category-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-indigo-700 mb-2">English-Thai Vocabulary Flashcards</h1>
+            <p class="text-gray-600">Master Thai vocabulary with interactive flashcards</p>
+            
+            <div class="flex justify-center space-x-2 mt-6">
+                <span class="category-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Flashcards</span>
+                <span class="category-badge bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">Pronunciation</span>
+                <span class="category-badge bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Examples</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <!-- Manage Vocabulary Link -->
+            <div class="p-4 text-right border-b bg-gray-50">
+                <a href="manage.html" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    <i class="fas fa-edit mr-1"></i> Manage Vocabulary
+                </a>
+            </div>
+            <!-- Tabs -->
+            <div class="flex border-b">
+                <button id="flashcards-tab-btn" class="tab-btn active px-6 py-3 font-medium text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50">
+                    <i class="fas fa-clone mr-2"></i> Flashcards
+                </button>
+                <button id="wordlist-tab-btn" class="tab-btn px-6 py-3 font-medium text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-list-ul mr-2"></i> Word List
+                </button>
+                <button id="stats-tab-btn" class="tab-btn px-6 py-3 font-medium text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-chart-bar mr-2"></i> Progress
+                </button>
+            </div>
+            
+            <!-- Flashcards Tab Content -->
+            <div id="flashcards-tab" class="tab-content p-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div class="w-full md:w-auto mb-4 md:mb-0">
+                        <label for="category-select" class="block text-sm font-medium text-gray-700 mb-1">Filter by category:</label>
+                        <select id="category-select" class="block w-full md:w-48 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 border">
+                            <option value="all">All Categories</option>
+                            <option value="basics">Basic Words</option>
+                            <option value="food">Food & Dining</option>
+                            <option value="travel">Travel</option>
+                            <option value="business">Business</option>
+                            <option value="academic">Academic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm font-medium text-gray-700">
+                            Card <span id="current-card" class="text-indigo-600">1</span> of <span id="total-cards" class="text-indigo-600">0</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="shuffle-btn" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+                                <i class="fas fa-random"></i>
+                            </button>
+                            <button id="bookmark-btn" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Flashcard -->
+                <div class="flashcard-container mb-8">
+                    <div class="flashcard relative w-full h-80 md:h-96 mx-auto cursor-pointer" id="flashcard">
+                        <!-- Front of Card -->
+                        <div class="flashcard-face absolute w-full h-full bg-white rounded-xl shadow-md p-8 flex flex-col justify-center items-center">
+                            <div class="text-center">
+                                <div class="word-highlight inline-block px-4 py-2 rounded-lg mb-4">
+                                    <span id="english-word" class="text-3xl md:text-4xl font-bold text-gray-800">Word</span>
+                                </div>
+                                <div class="flex justify-center items-center mb-6">
+                                    <span id="english-pronunciation" class="text-xl text-gray-600 mr-2">Pronunciation</span>
+                                    <i class="fas fa-volume-up pronunciation-icon text-indigo-500 text-xl"></i>
+                                </div>
+                                <div id="english-example" class="text-lg text-gray-700 italic">Example sentence</div>
+                            </div>
+                            <div class="absolute bottom-4 text-sm text-gray-400">
+                                Click to flip
+                                <i class="fas fa-undo ml-1"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Back of Card -->
+                        <div class="flashcard-face flashcard-back absolute w-full h-full bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-xl shadow-md p-8 flex flex-col justify-center items-center text-white">
+                            <div class="text-center">
+                                <div class="inline-block px-4 py-2 rounded-lg mb-4 bg-white bg-opacity-20">
+                                    <span id="thai-translation" class="text-3xl md:text-4xl font-bold">Translation</span>
+                                </div>
+                                <div class="flex justify-center items-center mb-6">
+                                    <span id="thai-pronunciation" class="text-xl text-indigo-200 mr-2">Thai pronunciation</span>
+                                    <i class="fas fa-volume-up pronunciation-icon text-indigo-300 text-xl"></i>
+                                </div>
+                                <div id="thai-example" class="text-lg text-indigo-100 italic">ตัวอย่างประโยค</div>
+                            </div>
+                            <div class="absolute bottom-4 text-sm text-indigo-200">
+                                <i class="fas fa-undo mr-1"></i>
+                                Click to flip back
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="flex justify-between">
+                    <button id="prev-btn" class="flex items-center px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-arrow-left mr-2"></i> Previous
+                    </button>
+                    <button id="flip-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-sync-alt mr-2"></i> Flip Card
+                    </button>
+                    <button id="next-btn" class="flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Word List Tab Content -->
+            <div id="wordlist-tab" class="tab-content hidden p-6">
+                <div class="mb-6">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="wordlist-search" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search words...">
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">English</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pronunciation</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thai</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wordlist-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Word list will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Stats Tab Content -->
+            <div id="stats-tab" class="tab-content hidden p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                                <i class="fas fa-book-open text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">Total Words</h3>
+                                <p id="total-words" class="text-2xl font-bold text-indigo-600">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                                <i class="fas fa-check-circle text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">Mastered</h3>
+                                <p id="mastered-words" class="text-2xl font-bold text-green-600">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                                <i class="fas fa-chart-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">Practice Streak</h3>
+                                <p id="practice-streak" class="text-2xl font-bold text-blue-600">0 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Progress by Category</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div class="text-center">
+                            <div class="h-32 w-32 mx-auto mb-2">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        stroke-width="3"
+                                        stroke-dasharray="100, 100"
+                                    />
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#4F46E5"
+                                        stroke-width="3"
+                                        stroke-dasharray="25, 100"
+                                    />
+                                    <text x="18" y="20.5" text-anchor="middle" font-size="8" fill="#4F46E5" font-weight="bold">25%</text>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Basics</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="h-32 w-32 mx-auto mb-2">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        stroke-width="3"
+                                        stroke-dasharray="100, 100"
+                                    />
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#10B981"
+                                        stroke-width="3"
+                                        stroke-dasharray="60, 100"
+                                    />
+                                    <text x="18" y="20.5" text-anchor="middle" font-size="8" fill="#10B981" font-weight="bold">60%</text>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Food</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="h-32 w-32 mx-auto mb-2">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        stroke-width="3"
+                                        stroke-dasharray="100, 100"
+                                    />
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#3B82F6"
+                                        stroke-width="3"
+                                        stroke-dasharray="40, 100"
+                                    />
+                                    <text x="18" y="20.5" text-anchor="middle" font-size="8" fill="#3B82F6" font-weight="bold">40%</text>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Travel</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="h-32 w-32 mx-auto mb-2">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        stroke-width="3"
+                                        stroke-dasharray="100, 100"
+                                    />
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#F59E0B"
+                                        stroke-width="3"
+                                        stroke-dasharray="15, 100"
+                                    />
+                                    <text x="18" y="20.5" text-anchor="middle" font-size="8" fill="#F59E0B" font-weight="bold">15%</text>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Business</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="h-32 w-32 mx-auto mb-2">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        stroke-width="3"
+                                        stroke-dasharray="100, 100"
+                                    />
+                                    <path d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        fill="none"
+                                        stroke="#EC4899"
+                                        stroke-width="3"
+                                        stroke-dasharray="10, 100"
+                                    />
+                                    <text x="18" y="20.5" text-anchor="middle" font-size="8" fill="#EC4899" font-weight="bold">10%</text>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Academic</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm mt-12">
+            <p>English-Thai Vocabulary Flashcards © 2025 | Made with <i class="fas fa-heart text-red-400"></i> for language learners</p>
+        </footer>
+    </div>
+
+    <script>
+        // Vocabulary database
+        const vocabulary = [
+            // Basic Words
+            { 
+                english: "Hello", 
+                pronunciation: "ha-'lō", 
+                thai: "สวัสดี", 
+                thaiPronunciation: "sà-wàt-dee", 
+                category: "basics",
+                example: "Hello, how are you?",
+                thaiExample: "สวัสดี คุณเป็นอย่างไรบ้าง?",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Thank you", 
+                pronunciation: "'thaŋk-yü", 
+                thai: "ขอบคุณ", 
+                thaiPronunciation: "kòp-kun", 
+                category: "basics",
+                example: "Thank you for your help.",
+                thaiExample: "ขอบคุณสำหรับความช่วยเหลือของคุณ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Goodbye", 
+                pronunciation: "gud-'bī", 
+                thai: "ลาก่อน", 
+                thaiPronunciation: "laa-gòn", 
+                category: "basics",
+                example: "Goodbye, see you tomorrow!",
+                thaiExample: "ลาก่อน พรุ่งนี้เจอกัน!",
+                mastered: false,
+                bookmarked: true
+            },
+            { 
+                english: "Yes", 
+                pronunciation: "yes", 
+                thai: "ใช่", 
+                thaiPronunciation: "châi", 
+                category: "basics",
+                example: "Yes, I understand.",
+                thaiExample: "ใช่ ฉันเข้าใจ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "No", 
+                pronunciation: "nō", 
+                thai: "ไม่", 
+                thaiPronunciation: "mâi", 
+                category: "basics",
+                example: "No, thank you.",
+                thaiExample: "ไม่ ขอบคุณ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Please", 
+                pronunciation: "plēz", 
+                thai: "กรุณา", 
+                thaiPronunciation: "gà-rú-naa", 
+                category: "basics",
+                example: "Please help me.",
+                thaiExample: "กรุณาช่วยฉันด้วย",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Sorry", 
+                pronunciation: "'sär-ē", 
+                thai: "ขอโทษ", 
+                thaiPronunciation: "kŏr tôht", 
+                category: "basics",
+                example: "I'm sorry for being late.",
+                thaiExample: "ขอโทษที่มาสาย",
+                mastered: false,
+                bookmarked: false
+            },
+            
+            // Food & Dining
+            { 
+                english: "Restaurant", 
+                pronunciation: "'re-stə-ˌränt", 
+                thai: "ร้านอาหาร", 
+                thaiPronunciation: "ráan-aa-hăan", 
+                category: "food",
+                example: "Let's meet at the restaurant at 7pm.",
+                thaiExample: "เจอกันที่ร้านอาหารตอนหนึ่งทุ่มนะ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Spicy", 
+                pronunciation: "'spī-sē", 
+                thai: "เผ็ด", 
+                thaiPronunciation: "pèt", 
+                category: "food",
+                example: "Thai food is often very spicy.",
+                thaiExample: "อาหารไทยมักจะเผ็ดมาก",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Delicious", 
+                pronunciation: "di-'li-shəs", 
+                thai: "อร่อย", 
+                thaiPronunciation: "a-ròi", 
+                category: "food",
+                example: "This dish is delicious!",
+                thaiExample: "จานนี้อร่อยมาก!",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Water", 
+                pronunciation: "'wȯ-tər", 
+                thai: "น้ำ", 
+                thaiPronunciation: "náam", 
+                category: "food",
+                example: "Can I have some water, please?",
+                thaiExample: "ขอน้ำหน่อยได้ไหมครับ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Rice", 
+                pronunciation: "rīs", 
+                thai: "ข้าว", 
+                thaiPronunciation: "kâao", 
+                category: "food",
+                example: "I eat rice every day.",
+                thaiExample: "ฉันกินข้าวทุกวัน",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Noodles", 
+                pronunciation: "'nü-dəlz", 
+                thai: "ก๋วยเตี๋ยว", 
+                thaiPronunciation: "gŭay-dtĭeow", 
+                category: "food",
+                example: "I love Thai noodles.",
+                thaiExample: "ฉันชอบก๋วยเตี๋ยวไทย",
+                mastered: false,
+                bookmarked: true
+            },
+            
+            // Travel
+            { 
+                english: "Airport", 
+                pronunciation: "'er-ˌpȯrt", 
+                thai: "สนามบิน", 
+                thaiPronunciation: "sà-năam-bin", 
+                category: "travel",
+                example: "We need to go to the airport early.",
+                thaiExample: "เราต้องไปสนามบินแต่เช้า",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Hotel", 
+                pronunciation: "hō-'tel", 
+                thai: "โรงแรม", 
+                thaiPronunciation: "rohng-raem", 
+                category: "travel",
+                example: "The hotel has a swimming pool.",
+                thaiExample: "โรงแรมมีสระว่ายน้ำ",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Ticket", 
+                pronunciation: "'ti-kət", 
+                thai: "ตั๋ว", 
+                thaiPronunciation: "dtŭa", 
+                category: "travel",
+                example: "I need to buy a train ticket.",
+                thaiExample: "ฉันต้องซื้อตั๋วรถไฟ",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Beach", 
+                pronunciation: "bēch", 
+                thai: "ชายหาด", 
+                thaiPronunciation: "chaai-hàat", 
+                category: "travel",
+                example: "Let's go to the beach tomorrow.",
+                thaiExample: "พรุ่งนี้เราไปชายหาดกันเถอะ",
+                mastered: true,
+                bookmarked: false
+            },
+            { 
+                english: "Taxi", 
+                pronunciation: "'tak-sē", 
+                thai: "แท็กซี่", 
+                thaiPronunciation: "táek-sêe", 
+                category: "travel",
+                example: "Can you call a taxi for me?",
+                thaiExample: "ช่วยเรียกแท็กซี่ให้ฉันหน่อยได้ไหม",
+                mastered: false,
+                bookmarked: true
+            },
+            
+            // Business
+            { 
+                english: "Meeting", 
+                pronunciation: "'mē-tiŋ", 
+                thai: "การประชุม", 
+                thaiPronunciation: "gaan-bprà-chum", 
+                category: "business",
+                example: "We have a meeting at 2pm.",
+                thaiExample: "เรามีการประชุมตอนบ่ายสองโมง",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Contract", 
+                pronunciation: "'kän-ˌtrakt", 
+                thai: "สัญญา", 
+                thaiPronunciation: "sǎn-yaa", 
+                category: "business",
+                example: "Please review the contract before signing.",
+                thaiExample: "กรุณาตรวจสอบสัญญาก่อนลงนาม",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Price", 
+                pronunciation: "prīs", 
+                thai: "ราคา", 
+                thaiPronunciation: "raa-kaa", 
+                category: "business",
+                example: "What's the price for this product?",
+                thaiExample: "สินค้านี้ราคาเท่าไหร่",
+                mastered: true,
+                bookmarked: false
+            },
+            
+            // Academic
+            { 
+                english: "University", 
+                pronunciation: "yü-nə-'vər-sə-tē", 
+                thai: "มหาวิทยาลัย", 
+                thaiPronunciation: "má-hăa-wít-thá-yaa-lai", 
+                category: "academic",
+                example: "She studies at Chulalongkorn University.",
+                thaiExample: "เธอเรียนที่มหาวิทยาลัยจุฬาลงกรณ์",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Research", 
+                pronunciation: "rē-'sərch", 
+                thai: "การวิจัย", 
+                thaiPronunciation: "gaan-wí-jai", 
+                category: "academic",
+                example: "He is doing research on Thai history.",
+                thaiExample: "เขากำลังทำวิจัยเกี่ยวกับประวัติศาสตร์ไทย",
+                mastered: false,
+                bookmarked: false
+            },
+            { 
+                english: "Student", 
+                pronunciation: "'stü-dənt", 
+                thai: "นักเรียน", 
+                thaiPronunciation: "nák-riian", 
+                category: "academic",
+                example: "I am a student at Bangkok University.",
+                thaiExample: "ฉันเป็นนักเรียนที่มหาวิทยาลัยกรุงเทพ",
+                mastered: true,
+                bookmarked: false
+            }
+        ];
+
+        // App state
+        let currentCardIndex = 0;
+        let filteredVocabulary = [...vocabulary];
+        let practiceStreak = 0;
+        let lastPracticeDate = new Date().toDateString();
+
+        // DOM elements
+        const flashcard = document.getElementById('flashcard');
+        const englishWord = document.getElementById('english-word');
+        const englishPronunciation = document.getElementById('english-pronunciation');
+        const englishExample = document.getElementById('english-example');
+        const thaiTranslation = document.getElementById('thai-translation');
+        const thaiPronunciation = document.getElementById('thai-pronunciation');
+        const thaiExample = document.getElementById('thai-example');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const flipBtn = document.getElementById('flip-btn');
+        const currentCardDisplay = document.getElementById('current-card');
+        const totalCardsDisplay = document.getElementById('total-cards');
+        const categorySelect = document.getElementById('category-select');
+        const wordlistBody = document.getElementById('wordlist-body');
+        const wordlistSearch = document.getElementById('wordlist-search');
+        const bookmarkBtn = document.getElementById('bookmark-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const totalWordsDisplay = document.getElementById('total-words');
+        const masteredWordsDisplay = document.getElementById('mastered-words');
+        const practiceStreakDisplay = document.getElementById('practice-streak');
+        
+        // Tab elements
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Initialize the app
+        function init() {
+            updateFilteredVocabulary();
+            updateCardDisplay();
+            updateWordList();
+            updateNavigationButtons();
+            updateStats();
+            checkPracticeStreak();
+
+            // Event listeners
+            flashcard.addEventListener('click', flipCard);
+            flipBtn.addEventListener('click', flipCard);
+            prevBtn.addEventListener('click', showPreviousCard);
+            nextBtn.addEventListener('click', showNextCard);
+            categorySelect.addEventListener('change', handleCategoryChange);
+            wordlistSearch.addEventListener('input', handleWordlistSearch);
+            bookmarkBtn.addEventListener('click', toggleBookmark);
+            shuffleBtn.addEventListener('click', shuffleCards);
+            
+            // Pronunciation buttons
+            document.querySelectorAll('.pronunciation-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const word = e.target.closest('.flex').querySelector('span').textContent;
+                    speakWord(word);
+                });
+            });
+
+            // Tab switching
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.id.replace('-tab-btn', '');
+                    switchTab(tabId);
+                });
+            });
+        }
+
+        // Filter vocabulary based on selected category
+        function updateFilteredVocabulary() {
+            const selectedCategory = categorySelect.value;
+            
+            if (selectedCategory === 'all') {
+                filteredVocabulary = [...vocabulary];
+            } else {
+                filteredVocabulary = vocabulary.filter(word => word.category === selectedCategory);
+            }
+            
+            currentCardIndex = 0;
+            updateCardDisplay();
+            updateNavigationButtons();
+        }
+
+        // Update the displayed card with current vocabulary
+        function updateCardDisplay() {
+            if (filteredVocabulary.length === 0) {
+                englishWord.textContent = "No words available";
+                englishPronunciation.textContent = "";
+                englishExample.textContent = "";
+                thaiTranslation.textContent = "";
+                thaiPronunciation.textContent = "";
+                thaiExample.textContent = "";
+                return;
+            }
+            
+            const currentWord = filteredVocabulary[currentCardIndex];
+            
+            englishWord.textContent = currentWord.english;
+            englishPronunciation.textContent = currentWord.pronunciation;
+            englishExample.textContent = currentWord.example;
+            thaiTranslation.textContent = currentWord.thai;
+            thaiPronunciation.textContent = currentWord.thaiPronunciation;
+            thaiExample.textContent = currentWord.thaiExample;
+            
+            // Update bookmark button
+            updateBookmarkButton(currentWord.bookmarked);
+            
+            // Reset card to front
+            if (flashcard.classList.contains('flipped')) {
+                flashcard.classList.remove('flipped');
+            }
+            
+            // Update progress display
+            currentCardDisplay.textContent = currentCardIndex + 1;
+            totalCardsDisplay.textContent = filteredVocabulary.length;
+        }
+
+        // Flip the card
+        function flipCard() {
+            flashcard.classList.toggle('flipped');
+            
+            // Update practice streak if this is the first card flip today
+            const today = new Date().toDateString();
+            if (lastPracticeDate !== today) {
+                practiceStreak++;
+                lastPracticeDate = today;
+                updateStats();
+            }
+        }
+
+        // Show previous card
+        function showPreviousCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCardDisplay();
+                updateNavigationButtons();
+            }
+        }
+
+        // Show next card
+        function showNextCard() {
+            if (currentCardIndex < filteredVocabulary.length - 1) {
+                currentCardIndex++;
+                updateCardDisplay();
+                updateNavigationButtons();
+            }
+        }
+
+        // Update navigation buttons state
+        function updateNavigationButtons() {
+            prevBtn.disabled = currentCardIndex === 0;
+            nextBtn.disabled = currentCardIndex === filteredVocabulary.length - 1;
+        }
+
+        // Handle category change
+        function handleCategoryChange() {
+            updateFilteredVocabulary();
+        }
+
+        // Update word list table
+        function updateWordList() {
+            wordlistBody.innerHTML = '';
+            
+            vocabulary.forEach((word, index) => {
+                const row = document.createElement('tr');
+                row.className = word.mastered ? 'bg-green-50' : 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900">${word.english}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${word.pronunciation}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${word.thai}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${getCategoryColor(word.category)}">
+                            ${word.category.charAt(0).toUpperCase() + word.category.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-word-btn" data-index="${index}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-green-900 mr-3 mastered-btn" data-index="${index}">
+                            <i class="fas ${word.mastered ? 'fa-check-circle' : 'fa-circle'}"></i>
+                        </button>
+                        <button class="text-yellow-600 hover:text-yellow-900 bookmark-btn" data-index="${index}">
+                            <i class="fas ${word.bookmarked ? 'fa-bookmark' : 'fa-bookmark'} ${word.bookmarked ? 'text-yellow-500' : 'text-gray-300'}"></i>
+                        </button>
+                    </td>
+                `;
+                
+                wordlistBody.appendChild(row);
+            });
+            
+            // Add event listeners to word list buttons
+            document.querySelectorAll('.view-word-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    viewWordFromList(index);
+                });
+            });
+            
+            document.querySelectorAll('.mastered-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    toggleMastered(index);
+                });
+            });
+            
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    toggleBookmarkFromList(index);
+                });
+            });
+        }
+
+        // Get color for category badge
+        function getCategoryColor(category) {
+            switch(category) {
+                case 'basics': return 'bg-blue-100 text-blue-800';
+                case 'food': return 'bg-green-100 text-green-800';
+                case 'travel': return 'bg-yellow-100 text-yellow-800';
+                case 'business': return 'bg-purple-100 text-purple-800';
+                case 'academic': return 'bg-pink-100 text-pink-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Handle word list search
+        function handleWordlistSearch() {
+            const searchTerm = wordlistSearch.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                updateWordList();
+                return;
+            }
+            
+            const filteredWords = vocabulary.filter(word => 
+                word.english.toLowerCase().includes(searchTerm) || 
+                word.thai.includes(searchTerm) ||
+                word.pronunciation.toLowerCase().includes(searchTerm)
+            );
+            
+            wordlistBody.innerHTML = '';
+            
+            filteredWords.forEach((word, index) => {
+                const row = document.createElement('tr');
+                row.className = word.mastered ? 'bg-green-50' : 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900">${word.english}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${word.pronunciation}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${word.thai}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${getCategoryColor(word.category)}">
+                            ${word.category.charAt(0).toUpperCase() + word.category.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-word-btn" data-index="${index}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-green-900 mr-3 mastered-btn" data-index="${index}">
+                            <i class="fas ${word.mastered ? 'fa-check-circle' : 'fa-circle'}"></i>
+                        </button>
+                        <button class="text-yellow-600 hover:text-yellow-900 bookmark-btn" data-index="${index}">
+                            <i class="fas ${word.bookmarked ? 'fa-bookmark' : 'fa-bookmark'} ${word.bookmarked ? 'text-yellow-500' : 'text-gray-300'}"></i>
+                        </button>
+                    </td>
+                `;
+                
+                wordlistBody.appendChild(row);
+            });
+            
+            // Add event listeners to filtered word list buttons
+            document.querySelectorAll('.view-word-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    viewWordFromList(index);
+                });
+            });
+            
+            document.querySelectorAll('.mastered-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    toggleMastered(index);
+                });
+            });
+            
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                    toggleBookmarkFromList(index);
+                });
+            });
+        }
+
+        // View word from word list
+        function viewWordFromList(index) {
+            const word = vocabulary[index];
+            
+            // Find the word in the filtered vocabulary
+            const wordIndex = filteredVocabulary.findIndex(w => w.english === word.english);
+            
+            if (wordIndex !== -1) {
+                currentCardIndex = wordIndex;
+            } else {
+                // If word not in current filtered list, change category to all
+                categorySelect.value = 'all';
+                updateFilteredVocabulary();
+                
+                // Find the word again in the full list
+                const newWordIndex = filteredVocabulary.findIndex(w => w.english === word.english);
+                if (newWordIndex !== -1) {
+                    currentCardIndex = newWordIndex;
+                }
+            }
+            
+            updateCardDisplay();
+            updateNavigationButtons();
+            switchTab('flashcards');
+        }
+
+        // Toggle mastered status
+        function toggleMastered(index) {
+            vocabulary[index].mastered = !vocabulary[index].mastered;
+            updateWordList();
+            updateStats();
+            
+            // If current card is mastered, update the filtered vocabulary
+            if (filteredVocabulary[currentCardIndex] && 
+                filteredVocabulary[currentCardIndex].english === vocabulary[index].english) {
+                filteredVocabulary[currentCardIndex].mastered = vocabulary[index].mastered;
+            }
+        }
+
+        // Toggle bookmark status
+        function toggleBookmark() {
+            if (filteredVocabulary.length === 0) return;
+            
+            const currentWord = filteredVocabulary[currentCardIndex];
+            const vocabIndex = vocabulary.findIndex(w => w.english === currentWord.english);
+            
+            if (vocabIndex !== -1) {
+                vocabulary[vocabIndex].bookmarked = !vocabulary[vocabIndex].bookmarked;
+                currentWord.bookmarked = vocabulary[vocabIndex].bookmarked;
+                updateBookmarkButton(currentWord.bookmarked);
+                updateWordList();
+            }
+        }
+
+        // Toggle bookmark from word list
+        function toggleBookmarkFromList(index) {
+            vocabulary[index].bookmarked = !vocabulary[index].bookmarked;
+            updateWordList();
+            
+            // If current card is bookmarked, update the filtered vocabulary
+            if (filteredVocabulary[currentCardIndex] && 
+                filteredVocabulary[currentCardIndex].english === vocabulary[index].english) {
+                filteredVocabulary[currentCardIndex].bookmarked = vocabulary[index].bookmarked;
+                updateBookmarkButton(filteredVocabulary[currentCardIndex].bookmarked);
+            }
+        }
+
+        // Update bookmark button appearance
+        function updateBookmarkButton(isBookmarked) {
+            const icon = bookmarkBtn.querySelector('i');
+            if (isBookmarked) {
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'text-yellow-500');
+            } else {
+                icon.classList.remove('fas', 'text-yellow-500');
+                icon.classList.add('far');
+            }
+        }
+
+        // Shuffle cards
+        function shuffleCards() {
+            if (filteredVocabulary.length === 0) return;
+            
+            // Fisher-Yates shuffle algorithm
+            for (let i = filteredVocabulary.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredVocabulary[i], filteredVocabulary[j]] = [filteredVocabulary[j], filteredVocabulary[i]];
+            }
+            
+            currentCardIndex = 0;
+            updateCardDisplay();
+            updateNavigationButtons();
+        }
+
+        // Switch between tabs
+        function switchTab(tabId) {
+            // Update active tab button
+            tabBtns.forEach(btn => {
+                if (btn.id === `${tabId}-tab-btn`) {
+                    btn.classList.add('active', 'text-indigo-700', 'border-indigo-700', 'bg-indigo-50');
+                    btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+                } else {
+                    btn.classList.remove('active', 'text-indigo-700', 'border-indigo-700', 'bg-indigo-50');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                }
+            });
+            
+            // Show corresponding content
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            totalWordsDisplay.textContent = vocabulary.length;
+            masteredWordsDisplay.textContent = vocabulary.filter(word => word.mastered).length;
+            practiceStreakDisplay.textContent = `${practiceStreak} ${practiceStreak === 1 ? 'day' : 'days'}`;
+        }
+
+        // Check and update practice streak
+        function checkPracticeStreak() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            // For demo purposes, we'll just set a random streak
+            practiceStreak = Math.floor(Math.random() * 10) + 1;
+            updateStats();
+        }
+
+        // Text-to-speech for pronunciation
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser.');
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

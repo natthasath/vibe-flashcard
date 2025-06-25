@@ -1,3 +1,3 @@
 # Vibe Flashcard
 
-A flashcard is a learning tool featuring a question, term, or image on one side and the answer or explanation on the other. It helps with memorization through active recall and spaced repetition, often used in language learning or exam prep.
+Vibe Flashcard is a powerful learning tool featuring questions or images on one side and answers on the other. Designed for active recall and spaced repetition, it boosts memorization and retention—ideal for language learners, students, and exam preparation.
